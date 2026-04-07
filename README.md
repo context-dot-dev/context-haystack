@@ -22,6 +22,8 @@ For more details, see the Haystack documentation on [creating custom components]
 
 6. **Search for all `TODO` comments** across the project and address them.
 
+Check out the [video walkthrough](https://www.youtube.com/watch?v=SWC0QecAMcI) for a step-by-step guide on how to use this template.
+
 ## Namespace convention
 
 Haystack integrations use the `haystack_integrations` namespace package. The directory structure under `src/` determines the import path for your component.
