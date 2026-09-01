@@ -1,80 +1,92 @@
-# Custom Component Template
+# Context.dev for Haystack
 
-A template repository for creating custom [Haystack](https://haystack.deepset.ai/) components and publishing them as standalone Python packages.
+[![PyPI](https://img.shields.io/pypi/v/context-dev-haystack)](https://pypi.org/project/context-dev-haystack/)
+[![Python](https://img.shields.io/pypi/pyversions/context-dev-haystack)](https://pypi.org/project/context-dev-haystack/)
+[![Test](https://github.com/context-dot-dev/context-haystack/actions/workflows/test.yml/badge.svg)](https://github.com/context-dot-dev/context-haystack/actions/workflows/test.yml)
+[![License](https://img.shields.io/github/license/context-dot-dev/context-haystack)](LICENSE)
 
-For more details, see the Haystack documentation on [creating custom components](https://docs.haystack.deepset.ai/docs/custom-components) and [creating custom document stores](https://docs.haystack.deepset.ai/docs/creating-custom-document-stores).
+Haystack components for live web search, webpage and YouTube transcript retrieval, and bounded website crawling with [Context.dev](https://context.dev).
 
-## How to use this template
+## Installation
 
-1. Click **[Use this template](https://github.com/deepset-ai/custom-component/generate)** to create a new repository.
-
-2. **Rename the package directory** from `src/haystack_integrations/components/example/` to match your integration. See [Namespace convention](#namespace-convention) below for the correct path.
-
-3. **Update `pyproject.toml`** — search for `TODO` comments and replace:
-   - `name`: your package name, following the `<technology>-haystack` convention (e.g. `opensearch-haystack`)
-   - `description`, `authors`, `keywords`, `project.urls`
-   - `dependencies`: add your integration-specific dependencies
-   - `tool.hatch.version.raw-options`: if you renamed directories, the version path is still derived from git tags so no change is needed here
-
-4. **Add your component code** in the renamed directory and export your classes from `__init__.py`.
-
-5. **Add tests** in `tests/` — see the skeleton in `tests/test_example.py`.
-
-6. **Search for all `TODO` comments** across the project and address them.
-
-Check out the [video walkthrough](https://www.youtube.com/watch?v=SWC0QecAMcI) for a step-by-step guide on how to use this template.
-
-## Namespace convention
-
-Haystack integrations use the `haystack_integrations` namespace package. The directory structure under `src/` determines the import path for your component.
-
-**Components** (converters, embedders, generators, rankers, etc.) use:
+```bash
+pip install context-dev-haystack
 ```
-src/haystack_integrations/components/<type>/<name>/
-```
-Import path: `from haystack_integrations.components.<type>.<name> import MyComponent`
 
-Common component types: `converters`, `embedders`, `generators`, `rankers`, `retrievers`, `connectors`, `tools`, `websearch`
+Create an API key in the [Context.dev dashboard](https://context.dev/dashboard/api-keys), then export it:
 
-**Document stores** use a separate namespace:
+```bash
+export CONTEXT_API_KEY="your-api-key"
 ```
-src/haystack_integrations/document_stores/<name>/
+
+## Components
+
+| Component | Purpose | Import |
+| --- | --- | --- |
+| `ContextWebSearch` | Search the live web and return ranked Haystack Documents and source links | `haystack_integrations.components.websearch.context` |
+| `ContextFetcher` | Fetch webpages or YouTube videos as clean Markdown Documents | `haystack_integrations.components.fetchers.context` |
+| `ContextCrawler` | Crawl websites into Documents with explicit page and depth limits | `haystack_integrations.components.fetchers.context` |
+
+All components support both `run()` and `run_async()`, Haystack serialization, custom timeouts, and retry configuration.
+
+## Search the live web
+
+```python
+from haystack_integrations.components.websearch.context import ContextWebSearch
+
+search = ContextWebSearch(top_k=5, include_markdown=True)
+result = search.run(query="Recent advances in retrieval-augmented generation")
+
+documents = result["documents"]
+links = result["links"]
 ```
-Import path: `from haystack_integrations.document_stores.<name> import MyDocumentStore`
+
+Use `include_domains`, `exclude_domains`, `freshness`, and `country` to constrain results. Extra Context.dev Search API fields can be supplied through `search_params`.
+
+## Fetch webpages or YouTube transcripts
+
+```python
+from haystack_integrations.components.fetchers.context import ContextFetcher
+
+fetcher = ContextFetcher()
+result = fetcher.run(
+    urls=[
+        "https://haystack.deepset.ai",
+        "https://www.youtube.com/watch?v=UF8uR6Z6KLc",
+    ]
+)
+
+documents = result["documents"]
+```
+
+Each URL becomes a Haystack `Document`. Webpages contain clean Markdown and page metadata; supported YouTube URLs return timestamped transcript Markdown.
+
+## Crawl a website
+
+```python
+from haystack_integrations.components.fetchers.context import ContextCrawler
+
+crawler = ContextCrawler(crawl_params={"maxPages": 25, "maxDepth": 2})
+result = crawler.run(urls=["https://docs.haystack.deepset.ai"])
+
+documents = result["documents"]
+```
+
+`ContextCrawler` defaults to one page to prevent accidental credit consumption. Set `maxPages` explicitly for larger crawls.
+
+## Async usage
+
+```python
+result = await search.run_async(query="Haystack agents")
+documents = result["documents"]
+```
+
+The fetcher and crawler process multiple input URLs concurrently in their async methods.
 
 ## Development
 
-This project uses [Hatch](https://hatch.pypa.io/) for build and environment management.
-
-```bash
-# Install Hatch
-pip install hatch
-
-# Format and lint
-hatch run fmt        # auto-fix
-hatch run fmt-check  # check only
-
-# Run tests
-hatch run test:unit         # unit tests only
-hatch run test:integration  # integration tests only
-hatch run test:all          # all tests
-hatch run test:cov          # with coverage
-```
-
-## Publishing to PyPI
-
-This template includes a GitHub Actions workflow that publishes your package to PyPI when you push a version tag.
-
-1. **Add a `PYPI_API_TOKEN` secret** to your repository settings (Settings > Secrets and variables > Actions).
-
-2. **Create a version tag** and push it:
-   ```bash
-   git tag v0.1.0
-   git push origin v0.1.0
-   ```
-
-The release workflow will build and publish the package automatically.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the Hatch-based development and release workflow.
 
 ## License
 
-`Apache-2.0` - See [LICENSE](LICENSE) for details.
+Apache-2.0. See [LICENSE](LICENSE).
