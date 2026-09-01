@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026-present AUTHOR <your@email.com>
+# SPDX-FileCopyrightText: 2026-present Context.dev
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -7,19 +7,22 @@ requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
-name = "example-haystack"  # TODO: Replace with your package name, e.g. "deepset-ai-haystack"
+name = "context-dev-haystack"
 dynamic = ["version"]
-description = "A custom Haystack component"  # TODO: Replace with your description
+description = "Haystack components for Context.dev live web search, scraping, and crawling"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
 keywords = [
     "haystack",
-    # TODO: Add relevant keywords for your integration
+    "context-dev",
+    "web-search",
+    "web-scraping",
+    "web-crawling",
+    "rag",
 ]
 authors = [
-    # TODO: Replace with your name and email
-    { name = "AUTHOR", email = "your@email.com" },
+    { name = "Context.dev" },
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -35,15 +38,16 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-    "haystack-ai",
-    # TODO: Add your integration-specific dependencies here
+    "haystack-ai>=2.24.1",
+    "httpx>=0.27.0",
+    "requests>=2.32.0",
 ]
 
 [project.urls]
-# TODO: Replace with your repository URL
-Documentation = "https://github.com/your-org/example-haystack#readme"
-Issues = "https://github.com/your-org/example-haystack/issues"
-Source = "https://github.com/your-org/example-haystack"
+Homepage = "https://context.dev"
+Documentation = "https://github.com/context-dot-dev/context-haystack#readme"
+Issues = "https://github.com/context-dot-dev/context-haystack/issues"
+Source = "https://github.com/context-dot-dev/context-haystack"
 
 [tool.hatch.version]
 source = "vcs"
@@ -65,8 +69,12 @@ fmt-check = "ruff check {args:.} && ruff format --check {args:.}"
 
 [tool.hatch.envs.test]
 dependencies = [
+    "mypy",
     "pytest",
+    "pytest-asyncio",
     "pytest-cov",
+    "pytest-mock",
+    "types-requests",
 ]
 
 [tool.hatch.envs.test.scripts]
@@ -74,6 +82,7 @@ unit = 'pytest -m "not integration" {args:tests}'
 integration = 'pytest -m "integration" {args:tests}'
 all = "pytest {args:tests}"
 cov = "pytest --cov=haystack_integrations {args:tests}"
+types = "mypy src tests"
 
 [tool.ruff]
 line-length = 120
@@ -138,10 +147,10 @@ ban-relative-imports = "parents"
 "examples/**/*" = ["D", "T201", "ANN"]
 
 [tool.mypy]
-install_types = true
-non_interactive = true
 check_untyped_defs = true
 disallow_incomplete_defs = true
+explicit_package_bases = true
+mypy_path = "src"
 
 [[tool.mypy.overrides]]
 module = ["haystack.*"]

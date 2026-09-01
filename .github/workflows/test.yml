@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026-present AUTHOR <your@email.com>
+# SPDX-FileCopyrightText: 2026-present Context.dev
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -43,6 +43,10 @@ jobs:
       - name: Lint
         if: matrix.python-version == '3.10' && runner.os == 'Linux'
         run: hatch run fmt-check
+
+      - name: Type check
+        if: matrix.python-version == '3.10' && runner.os == 'Linux'
+        run: hatch run test:types
 
       - name: Run tests
         run: hatch run test:all
