@@ -35,4 +35,4 @@ Keep changes focused, add tests for behavior changes, and use Conventional Commi
 
 ## Releases
 
-Maintainers publish releases by pushing a semantic version tag such as `v0.1.0`. The release workflow builds the source distribution and wheel, then publishes both to PyPI.
+Maintainers publish releases by pushing a semantic version tag such as `v0.1.0`. The release workflow builds the source distribution and wheel, then publishes both to PyPI through Trusted Publishing.
